@@ -1,18 +1,133 @@
 <!DOCTYPE html>
-
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>my-first-website</title>
-  <LINK href="styles.css" rel="stylesheet" type="text/css">
+<title>FEED YOUR SNAKE</title>
 </head>
-
 <body>
+<canvas id=canvas height=400 width=400  >
 
-<img src="https://octodex.github.com/images/daftpunktocat-thomas.gif" id="octocat" alt="octocat-gif" />
+</canvas>
+<script>
 
-<!-- Change this code here by copy and pasting your template on line 15 -->
-<p>Welcome to your first GitHub Pages website!</p>
+/*steps to be followed
+xbackground
+xfood
+xsnake
+xevent loop
+xmovement
+xaction
+-conclusion
+*/
+function Food(){
+  this.x=7;
+  this.y=9;
+  
+  this.draw=function(game){
+    game.Rect(this.x,this.y,1,1,'black');
+  };
+  this.reset=function(game){
+    this.x=Math.floor(Math.random()*game.nx);
+	this.y=Math.floor(Math.random()*game.ny);
+  };
+  
+}
+function Snake(){
+  this.x=12;
+  this.y=12;
+  this.vx=0.5;
+  this.vy=0;
+  this.l=2;
+  this.trace=[];
+  this.step=function(game){
+    this.x=this.x+this.vx;
+	this.y=this.y+this.vy;
+	
+	if(this.x>=game.nx)this.x=0;
+	if(this.y>=game.ny)this.y=0;
+	if(this.x<0)this.x=game.nx-1;
+	if(this.y<0)this.y=game.ny-1;
+	
+	for(var i=0;i<this.trace.length;i++){
+	  var pos=this.trace[i];
+	  if(pos.x==game.food.x && pos.y==game.food.y){
+	     this.l=this.l+1;
+		 game.food.reset(game);
+	  }
+	}
+	
+	
+	
+    this.trace.push({x:this.x,y:this.y});
+    while(this.trace.length > this.l)this.trace.shift();
+  };
+  this.draw=function(game){
+     for(var i=0;i<this.trace.length;i++){
+       var pos=this.trace[i];
+	   game.Rect(pos.x,pos.y,1,1,'white');
+    }
+  };
+  this.keydown=function(key){
+     if(key=='ArrowDown'){
+	    this.vx=0;
+		this.vy=0.5;
+	 }
+	 if(key=='ArrowUp'){
+	    this.vx=0;
+		this.vy=-0.5;
+	 }
+	 if(key=='ArrowLeft'){
+	    this.vx=-0.5;
+		this.vy=0;
+	 }
+	 if(key=='ArrowRight'){
+	    this.vx=0.5;
+		this.vy=0;
+	 }
+	 
+  
+  
+  };
+}
 
+function Game(){
+  this.scale=20;
+  this.ctx=canvas.getContext('2d');
+  this.nx=Math.floor(canvas.width/this.scale);
+  this.ny=Math.floor(canvas.height/this.scale);
+  
+  
+  this.food=new Food();
+  this.snake=new Snake();
+  this.Rect=function(a,b,c,d,e){
+  
+    this.ctx.fillStyle=e;
+	this.ctx.fillRect(a*this.scale,b*this.scale,c*this.scale-1,d*this.scale-1);
+  };
+  
+  this.draw=function(){
+    this.Rect(0,0,this.nx,this.ny,'red');
+	this.food.draw(this);
+	
+	this.snake.draw(this);
+  };
+  this.step=function(){
+    this.snake.step(this); 
+    this.draw();
+	this.wait();
+  };
+  this.wait=function(){
+    setTimeout(this.step.bind(this),1000/25);
+  };
+  this.keydown=function(evt){
+    this.snake.keydown(evt.key);
+  };
+  document.addEventListener('keydown',this.keydown.bind(this));
+  this.wait();
+}
+
+window.onload=function(){
+  new Game();
+}
+</script>
 </body>
 </html>
